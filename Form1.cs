@@ -7,11 +7,12 @@ using CsvHelper;
 
 namespace cs319project;
 
-
 public partial class Form1 : Form
 {
+    private Dictionary<int, InventoryItem> lookUpTable{get; set;} = new Dictionary<int, InventoryItem>{};
     public Form1()
     {
+        
         List<InventoryItem> InventoryTable = new List<InventoryItem>();
         string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         string appFolder = Path.Combine(appData, "InventoryManager");
@@ -34,17 +35,43 @@ public partial class Form1 : Form
         tableLayout.Controls.Add(new DataGridView(), 1, 0);
 
         TreeView inventoryList = new TreeView();
+        inventoryList.NodeMouseClick += treeClick;
         inventoryList.BeginUpdate();
         inventoryList.Nodes.Add("Earth");
         foreach (var item in InventoryTable)
         {
             try 
             {
-            inventoryList.Nodes[item.locationId].Nodes.Add(item.name);
+            item.node = inventoryList.Nodes.Add(item.name);
+           // Console.WriteLine(item.node.ToString());
+            this.lookUpTable.Add(item.Id,item);
+            
+
             }
             catch
             {
-            inventoryList.Nodes.Add(item.name);
+            Console.WriteLine("Failed to add node");
+            }
+        }
+         foreach (var item in InventoryTable)
+        {
+            try 
+            {
+                if (item.locationId > 0){
+            InventoryItem parentItem = this.lookUpTable.GetValueOrDefault(item.locationId);
+            TreeNode parentNode = parentItem.node;
+            parentNode.Nodes.Insert(parentNode.Nodes.Count, (TreeNode)item.node.Clone());
+            item.node.Remove();
+            item.node = parentNode.Nodes[parentNode.Nodes.Count -1];
+            
+           // Console.WriteLine(item.node.ToString());
+           // this.lookUpTable.Add(item.locationId,item);
+
+                }
+            }
+            catch
+            {
+            Console.WriteLine("Not a child node");
             }
         }
         inventoryList.EndUpdate();
@@ -74,6 +101,10 @@ public partial class Form1 : Form
             csv.Add(reader.GetRecord<InventoryItem>());
         }
     }
+    private void treeClick(object sender, TreeNodeMouseClickEventArgs e)
+    {
+      //  Console.WriteLine(e.Node.Parent.Index);  
+    }
 }
 
 [CsvRecord]
@@ -87,4 +118,6 @@ public partial class InventoryItem
     public int quantity {get; set;}
     [CsvColumn("Location")]
     public int locationId {get; set;}
+    [CsvIgnore]
+    public TreeNode? node {get; set;}
 } 

@@ -14,9 +14,11 @@ public partial class RemoveItemForm : Form
         tableLayout.Dock = DockStyle.Fill;
         
         OK.DialogResult = DialogResult.OK;
+        OK.Text = "OK";
         tableLayout.Controls.Add(OK,1,0);
        
         Cancel.DialogResult = DialogResult.Cancel;
+        Cancel.Text = "Cancel";
         tableLayout.Controls.Add(Cancel,1,1);
         this.Controls.Add(tableLayout);
     }

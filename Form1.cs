@@ -10,12 +10,13 @@ namespace cs319project;
 public partial class Form1 : Form
 {
     private Dictionary<int, InventoryItem> lookUpTable { get; set; } = new Dictionary<int, InventoryItem> { };
+    List<InventoryItem> InventoryTable = new List<InventoryItem>();
+    static string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+    string appFolder = Path.Combine(appData, "InventoryManager");
+    TreeView inventoryList = new TreeView();
+    InventoryItem selectedItem = new InventoryItem();
     public Form1()
     {
-
-        List<InventoryItem> InventoryTable = new List<InventoryItem>();
-        string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        string appFolder = Path.Combine(appData, "InventoryManager");
         Directory.CreateDirectory(appFolder);
         try
         {
@@ -34,48 +35,9 @@ public partial class Form1 : Form
         tableLayout.RowCount = 3;
         tableLayout.Dock = DockStyle.Fill;
 
-        TreeView inventoryList = new TreeView();
+        
         inventoryList.NodeMouseClick += treeClick;
-        inventoryList.BeginUpdate();
-        inventoryList.Nodes.Add("Earth");
-        foreach (var item in InventoryTable)
-        {
-            try
-            {
-                item.node = inventoryList.Nodes.Add(item.name);
-                // Console.WriteLine(item.node.ToString());
-                this.lookUpTable.Add(item.Id, item);
-
-
-            }
-            catch
-            {
-                Console.WriteLine("Failed to add node");
-            }
-        }
-        foreach (var item in InventoryTable)
-        {
-            try
-            {
-                if (item.locationId > 0)
-                {
-                    InventoryItem parentItem = this.lookUpTable.GetValueOrDefault(item.locationId);
-                    TreeNode parentNode = parentItem.node;
-                    parentNode.Nodes.Insert(parentNode.Nodes.Count, (TreeNode)item.node.Clone());
-                    item.node.Remove();
-                    item.node = parentNode.Nodes[parentNode.Nodes.Count - 1];
-
-                    // Console.WriteLine(item.node.ToString());
-                    // this.lookUpTable.Add(item.locationId,item);
-
-                }
-            }
-            catch
-            {
-                Console.WriteLine("Not a child node");
-            }
-        }
-        inventoryList.EndUpdate();
+        UpdateInventoryList();
         tableLayout.Controls.Add(inventoryList, 0, 0);
         Button addItemButton = new Button();
         addItemButton.Text = "Add";
@@ -114,7 +76,7 @@ public partial class Form1 : Form
     }
     private void treeClick(object sender, TreeNodeMouseClickEventArgs e)
     {
-        //  Console.WriteLine(e.Node.Parent.Index);  
+       selectedItem = (InventoryItem)e.Node.Tag;
     }
     private void addClick(object sender, EventArgs e)
     {
@@ -122,6 +84,27 @@ public partial class Form1 : Form
         if (addItemWindow.ShowDialog() == DialogResult.OK)
         {
             Console.WriteLine(addItemWindow.ItemName);
+            InventoryItem newItem = new InventoryItem();
+            for (int i = 1; i < InventoryTable.Count + 2; i++)
+            {
+                if (!InventoryTable.Any(item => item.Id == i))
+                {
+                    newItem.Id = i;
+                }
+            }
+            newItem.name = addItemWindow.ItemName; 
+            newItem.quantity = 1;
+            if (selectedItem != null)
+            {
+               newItem.locationId = selectedItem.Id; 
+            }
+            else
+            {
+               newItem.locationId = 0; 
+            }            
+            InventoryTable.Add(newItem);
+            UpdateInventoryList();
+            ExportCsv(appFolder, InventoryTable);
         }
         addItemWindow.Dispose();
     }
@@ -130,9 +113,62 @@ public partial class Form1 : Form
         RemoveItemForm removeItemWindow = new RemoveItemForm();
         if (removeItemWindow.ShowDialog() == DialogResult.OK)
         {
-            Console.WriteLine("closed remove window with OK");
+            if (selectedItem != null)
+            {
+            inventoryList.Nodes.Remove(selectedItem.node);
+            InventoryTable.RemoveAll(item => item.Id == selectedItem.Id);
+            lookUpTable.Remove(selectedItem.Id);
+            UpdateInventoryList();
+            ExportCsv(appFolder, InventoryTable);
+            }
         }
         removeItemWindow.Dispose();
+    }
+    public void UpdateInventoryList()
+    {
+        inventoryList.BeginUpdate();
+        inventoryList.Nodes.Clear();
+        lookUpTable.Clear();
+        inventoryList.Nodes.Add("Earth");
+        foreach (var item in InventoryTable)
+        {
+            try
+            {
+                TreeNode newNode = new TreeNode(item.name);
+                newNode.Tag = item;
+                item.node = inventoryList.Nodes.Add(newNode.Text);
+                item.node.Tag = item;
+                // Console.WriteLine(item.node.ToString());
+                this.lookUpTable.Add(item.Id, item);
+            }
+            catch
+            {
+                Console.WriteLine("Failed to add node");
+            }
+        }
+        foreach (var item in InventoryTable)
+        {
+            try
+            {
+                if (item.locationId > 0)
+                {
+                    InventoryItem parentItem = this.lookUpTable.GetValueOrDefault(item.locationId);
+                    TreeNode parentNode = parentItem.node;
+                    parentNode.Nodes.Insert(parentNode.Nodes.Count, (TreeNode)item.node.Clone());
+                    item.node.Remove();
+                    item.node = parentNode.Nodes[parentNode.Nodes.Count - 1];
+
+                    // Console.WriteLine(item.node.ToString());
+                    // this.lookUpTable.Add(item.locationId,item);
+
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Not a child node, or missing parent");
+            }
+        }
+        inventoryList.EndUpdate();
     }
 }
 

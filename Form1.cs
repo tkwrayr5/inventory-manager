@@ -9,23 +9,24 @@ namespace cs319project;
 
 public partial class Form1 : Form
 {
-    private Dictionary<int, InventoryItem> lookUpTable{get; set;} = new Dictionary<int, InventoryItem>{};
+    private Dictionary<int, InventoryItem> lookUpTable { get; set; } = new Dictionary<int, InventoryItem> { };
     public Form1()
     {
-        
+
         List<InventoryItem> InventoryTable = new List<InventoryItem>();
         string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         string appFolder = Path.Combine(appData, "InventoryManager");
         Directory.CreateDirectory(appFolder);
-        try{
-        using (var reader = CsvReader.FromFile(Path.Combine(appFolder, "inventory.csv")))
+        try
         {
-        ImportCsvRecord(reader,InventoryTable);
-        }
+            using (var reader = CsvReader.FromFile(Path.Combine(appFolder, "inventory.csv")))
+            {
+                ImportCsvRecord(reader, InventoryTable);
+            }
         }
         catch
         {
-         ExportCsv(appFolder,InventoryTable);
+            ExportCsv(appFolder, InventoryTable);
         }
         InitializeComponent();
         TableLayoutPanel tableLayout = new TableLayoutPanel();
@@ -39,50 +40,53 @@ public partial class Form1 : Form
         inventoryList.Nodes.Add("Earth");
         foreach (var item in InventoryTable)
         {
-            try 
+            try
             {
-            item.node = inventoryList.Nodes.Add(item.name);
-           // Console.WriteLine(item.node.ToString());
-            this.lookUpTable.Add(item.Id,item);
-            
+                item.node = inventoryList.Nodes.Add(item.name);
+                // Console.WriteLine(item.node.ToString());
+                this.lookUpTable.Add(item.Id, item);
+
 
             }
             catch
             {
-            Console.WriteLine("Failed to add node");
+                Console.WriteLine("Failed to add node");
             }
         }
-         foreach (var item in InventoryTable)
+        foreach (var item in InventoryTable)
         {
-            try 
+            try
             {
-                if (item.locationId > 0){
-            InventoryItem parentItem = this.lookUpTable.GetValueOrDefault(item.locationId);
-            TreeNode parentNode = parentItem.node;
-            parentNode.Nodes.Insert(parentNode.Nodes.Count, (TreeNode)item.node.Clone());
-            item.node.Remove();
-            item.node = parentNode.Nodes[parentNode.Nodes.Count -1];
-            
-           // Console.WriteLine(item.node.ToString());
-           // this.lookUpTable.Add(item.locationId,item);
+                if (item.locationId > 0)
+                {
+                    InventoryItem parentItem = this.lookUpTable.GetValueOrDefault(item.locationId);
+                    TreeNode parentNode = parentItem.node;
+                    parentNode.Nodes.Insert(parentNode.Nodes.Count, (TreeNode)item.node.Clone());
+                    item.node.Remove();
+                    item.node = parentNode.Nodes[parentNode.Nodes.Count - 1];
+
+                    // Console.WriteLine(item.node.ToString());
+                    // this.lookUpTable.Add(item.locationId,item);
 
                 }
             }
             catch
             {
-            Console.WriteLine("Not a child node");
+                Console.WriteLine("Not a child node");
             }
         }
         inventoryList.EndUpdate();
         tableLayout.Controls.Add(inventoryList, 0, 0);
         Button addItemButton = new Button();
-        addItemButton.DialogResult = DialogResult.OK;
         addItemButton.Text = "Add";
+        addItemButton.Click += addClick;
         tableLayout.Controls.Add(addItemButton, 0, 2);
+
         Button removeItemButton = new Button();
-        removeItemButton.DialogResult = DialogResult.OK;
         removeItemButton.Text = "Remove Item";
+        removeItemButton.Click += removeClick;
         tableLayout.Controls.Add(removeItemButton, 1, 2);
+
         this.Controls.Add(tableLayout);
 
         ExportCsv(appFolder, InventoryTable);
@@ -90,10 +94,10 @@ public partial class Form1 : Form
     }
     public static void ExportCsv(string path, List<InventoryItem> itemTable)
     {
-        
+
         using (var writer = CsvWriter.ToFile(Path.Combine(path, "inventory.csv")))
         {
-            writer.WriteHeader("ID","Name","Ammount","Location");
+            writer.WriteHeader("ID", "Name", "Ammount", "Location");
             foreach (var item in itemTable)
             {
                 writer.WriteRecord(item);
@@ -110,7 +114,25 @@ public partial class Form1 : Form
     }
     private void treeClick(object sender, TreeNodeMouseClickEventArgs e)
     {
-      //  Console.WriteLine(e.Node.Parent.Index);  
+        //  Console.WriteLine(e.Node.Parent.Index);  
+    }
+    private void addClick(object sender, EventArgs e)
+    {
+        AddItemForm addItemWindow = new AddItemForm();
+        if (addItemWindow.ShowDialog() == DialogResult.OK)
+        {
+            Console.WriteLine(addItemWindow.ItemName);
+        }
+        addItemWindow.Dispose();
+    }
+    private void removeClick(object sender, EventArgs e)
+    {
+        RemoveItemForm removeItemWindow = new RemoveItemForm();
+        if (removeItemWindow.ShowDialog() == DialogResult.OK)
+        {
+            Console.WriteLine("closed remove window with OK");
+        }
+        removeItemWindow.Dispose();
     }
 }
 
@@ -118,13 +140,13 @@ public partial class Form1 : Form
 public partial class InventoryItem
 {
     [CsvColumn("ID")]
-    public int Id {get; set;}
+    public int Id { get; set; }
     [CsvColumn("Name")]
-    public String name {get; set;} = "";
+    public String name { get; set; } = "";
     [CsvColumn("Ammount")]
-    public int quantity {get; set;}
+    public int quantity { get; set; }
     [CsvColumn("Location")]
-    public int locationId {get; set;}
+    public int locationId { get; set; }
     [CsvIgnore]
-    public TreeNode? node {get; set;}
-} 
+    public TreeNode? node { get; set; }
+}

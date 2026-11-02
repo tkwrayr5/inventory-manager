@@ -30,9 +30,8 @@ public partial class Form1 : Form
         InitializeComponent();
         TableLayoutPanel tableLayout = new TableLayoutPanel();
         tableLayout.ColumnCount = 2;
-        tableLayout.RowCount = 2;
+        tableLayout.RowCount = 3;
         tableLayout.Dock = DockStyle.Fill;
-        tableLayout.Controls.Add(new DataGridView(), 1, 0);
 
         TreeView inventoryList = new TreeView();
         inventoryList.NodeMouseClick += treeClick;
@@ -76,6 +75,14 @@ public partial class Form1 : Form
         }
         inventoryList.EndUpdate();
         tableLayout.Controls.Add(inventoryList, 0, 0);
+        Button addItemButton = new Button();
+        addItemButton.DialogResult = DialogResult.OK;
+        addItemButton.Text = "Add";
+        tableLayout.Controls.Add(addItemButton, 0, 2);
+        Button removeItemButton = new Button();
+        removeItemButton.DialogResult = DialogResult.OK;
+        removeItemButton.Text = "Remove Item";
+        tableLayout.Controls.Add(removeItemButton, 1, 2);
         this.Controls.Add(tableLayout);
 
         ExportCsv(appFolder, InventoryTable);

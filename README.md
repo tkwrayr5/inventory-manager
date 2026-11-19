@@ -4,6 +4,8 @@ By Thomas Wray
 This project is built as a Windows Forms application. It is built with dotnet framework 10.0 and needs the dotnet SDK
 This is installed through your vscode or visual studio package manager.
 
+Using Xunit for unit testing
+
 It also uses CsvHelper version 34.0.0
 The bash command to install that is: dotnet add package CsvHelper
 

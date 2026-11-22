@@ -15,6 +15,9 @@ public partial class Form1 : Form
     string appFolder = Path.Combine(appData, "InventoryManager");
     TreeView inventoryList = new TreeView();
     InventoryItem selectedItem = new InventoryItem();
+    Label labelValue = new Label();
+    Label labelQuantity = new Label();
+    Label labelNotes = new Label();
     public Form1()
     {
         Directory.CreateDirectory(appFolder);
@@ -25,21 +28,18 @@ public partial class Form1 : Form
                 ImportCsvRecord(reader, InventoryTable);
             }
         }
-        catch (Exception ex)
+        catch
         {
-        MessageBox.Show(ex.Message,
-        "CSV Import Error",
-        MessageBoxButtons.OK,
-        MessageBoxIcon.Error
-        );
             ExportCsv(appFolder, InventoryTable);
         }
         InitializeComponent();
         TableLayoutPanel tableLayout = new TableLayoutPanel();
-        tableLayout.ColumnCount = 2;
+        tableLayout.ColumnCount = 4;
         tableLayout.RowCount = 3;
         tableLayout.Dock = DockStyle.Fill;
-
+        tableLayout.Controls.Add(labelValue,1,0);
+        tableLayout.Controls.Add(labelQuantity,2,0);
+        tableLayout.Controls.Add(labelNotes,3,0);
         
         inventoryList.NodeMouseClick += treeClick;
         inventoryList.Size = new Size(360, 400);
@@ -83,6 +83,9 @@ public partial class Form1 : Form
     private void treeClick(object sender, TreeNodeMouseClickEventArgs e)
     {
        selectedItem = (InventoryItem)e.Node.Tag;
+       labelValue.Text = selectedItem.price.ToString();
+       labelQuantity.Text = selectedItem.quantity.ToString();
+       labelNotes.Text = selectedItem.notes;
     }
     private void addClick(object sender, EventArgs e)
     {

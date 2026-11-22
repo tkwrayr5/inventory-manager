@@ -25,8 +25,13 @@ public partial class Form1 : Form
                 ImportCsvRecord(reader, InventoryTable);
             }
         }
-        catch
+        catch (Exception ex)
         {
+        MessageBox.Show(ex.Message,
+        "CSV Import Error",
+        MessageBoxButtons.OK,
+        MessageBoxIcon.Error
+        );
             ExportCsv(appFolder, InventoryTable);
         }
         InitializeComponent();
@@ -37,6 +42,7 @@ public partial class Form1 : Form
 
         
         inventoryList.NodeMouseClick += treeClick;
+        inventoryList.Size = new Size(360, 400);
         UpdateInventoryList();
         tableLayout.Controls.Add(inventoryList, 0, 0);
         Button addItemButton = new Button();
@@ -59,7 +65,7 @@ public partial class Form1 : Form
 
         using (var writer = CsvWriter.ToFile(Path.Combine(path, "inventory.csv")))
         {
-            writer.WriteHeader("ID", "Name", "Ammount", "Location", "Value", "Notes");
+            writer.WriteHeader("ID", "Name", "Ammount", "Value",  "Notes", "Location");
             foreach (var item in itemTable)
             {
                 writer.WriteRecord(item);
@@ -94,6 +100,8 @@ public partial class Form1 : Form
             }
             newItem.name = addItemWindow.ItemName; 
             newItem.quantity = 1;
+            newItem.price = 0.00m;
+            newItem.notes = "Notes go here"; 
             if (selectedItem != null)
             {
                newItem.locationId = selectedItem.Id; 
@@ -178,13 +186,13 @@ public partial class InventoryItem
     [CsvColumn("ID")]
     public int Id { get; set; }
     [CsvColumn("Name")]
-    public String name { get; set; } = "";
+    public string name { get; set; } = "";
     [CsvColumn("Ammount")]
     public int quantity { get; set; }
     [CsvColumn("Value")]
-    public float price { get; set; }
+    public decimal price { get; set; }
     [CsvColumn("Notes")]
-    public String notes { get; set; } = "";
+    public string notes { get; set; } = "";
     [CsvColumn("Location")]
     public int locationId { get; set; }
     [CsvIgnore]

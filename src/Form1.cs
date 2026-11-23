@@ -140,7 +140,13 @@ public partial class Form1 : Form
         inventoryList.BeginUpdate();
         inventoryList.Nodes.Clear();
         lookUpTable.Clear();
-        inventoryList.Nodes.Add("Earth");
+        //inventoryList.Nodes.Add("Earth");
+        PopulateInventoryList();
+        OrderInventoryList();
+        inventoryList.EndUpdate();
+    }
+    public void PopulateInventoryList()
+    {
         foreach (var item in InventoryTable)
         {
             try
@@ -157,21 +163,21 @@ public partial class Form1 : Form
                 Console.WriteLine("Failed to add node");
             }
         }
-        foreach (var item in InventoryTable)
+               
+    }
+    public void OrderInventoryList()
+    {
+                foreach (var item in InventoryTable)
         {
             try
             {
-                if (item.locationId > 0)
+                if (item.locationId >= 0)
                 {
                     InventoryItem parentItem = this.lookUpTable.GetValueOrDefault(item.locationId);
                     TreeNode parentNode = parentItem.node;
                     parentNode.Nodes.Insert(parentNode.Nodes.Count, (TreeNode)item.node.Clone());
                     item.node.Remove();
                     item.node = parentNode.Nodes[parentNode.Nodes.Count - 1];
-
-                    // Console.WriteLine(item.node.ToString());
-                    // this.lookUpTable.Add(item.locationId,item);
-
                 }
             }
             catch
@@ -179,7 +185,6 @@ public partial class Form1 : Form
                 Console.WriteLine("Not a child node, or missing parent");
             }
         }
-        inventoryList.EndUpdate();
     }
 }
 

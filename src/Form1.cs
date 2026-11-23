@@ -65,7 +65,7 @@ public partial class Form1 : Form
 
         using (var writer = CsvWriter.ToFile(Path.Combine(path, "inventory.csv")))
         {
-            writer.WriteHeader("ID", "Name", "Ammount", "Value",  "Notes", "Location");
+            writer.WriteHeader<InventoryItem>();
             foreach (var item in itemTable)
             {
                 writer.WriteRecord(item);

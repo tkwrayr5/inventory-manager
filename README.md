@@ -14,6 +14,7 @@ It should create the file it needs the first time it is run in Appdata\Roaming\I
 
 To run the program after compilation simply find the cs319project.exe in the bin folder and run that.
 
+How I run unit tests: Open project in vscode, navigate to the tests folder, select UnitTest1.cs and right click -->run tests
 
 How to Use
 
@@ -22,10 +23,12 @@ The program will open up a form window with a small inventory window and an add 
 To add an item click the add button, enter a name and click OK and the item should be added to the inventory window.
 To remove an item click it in the inventory window then click remove, another window will open up, click OK to confirm the removal.
 To put an item inside of another item click the item you want to put the item into and then click add and follow the same actions as above.
-
+To edit item details select the item in the list then click the edit button. Enter all information then click OK.
+If you wish to see the total value of all items, simply click the Total Value button
 
 Known Limitations
 
 Currently there is no way to change what item an item is inside of, it must be deleted and recreated.
-There can be some weirdness if you delete items that have other items in them.
-Currently there is very little that the program tracks other than the names of objects and where they are, I hope to add functionality for quantities of items and descriptions and metrics for the items.
+If you delete an item that has other items inside of it and then create another item, the items that were inside the first item will be automatically sorted into the new one.
+The edit items panel does not read the current item details, all information must be entered at once. Any field left blank will be saved as blank.
+

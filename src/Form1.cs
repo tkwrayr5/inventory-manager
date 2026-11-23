@@ -197,7 +197,7 @@ public partial class Form1 : Form
         decimal sum = 0;
         foreach (var item in inventorylist)
         {
-            sum = sum + item.price;
+            sum = sum + (item.price*item.quantity);
         }
         return sum;
     }

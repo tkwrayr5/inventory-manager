@@ -12,9 +12,9 @@ public class UnitTest1
     {
         var inventory = new List<InventoryItem>
         {
-            new InventoryItem {price = 5.00m},
-            new InventoryItem {price = 0.50m},
-            new InventoryItem {price = 4.50m}
+            new InventoryItem {price = 5.00m, quantity = 1},
+            new InventoryItem {price = 0.50m, quantity = 1},
+            new InventoryItem {price = 4.50m, quantity = 1}
         };
         decimal result = Form1.sumValue(inventory);
 
@@ -26,8 +26,8 @@ public class UnitTest1
         var inventory = new List<InventoryItem>
         {
             new InventoryItem {},
-            new InventoryItem {price = 0.50m},
-            new InventoryItem {price = 4.50m}
+            new InventoryItem {price = 0.50m, quantity = 1},
+            new InventoryItem {price = 4.50m, quantity = 1}
         };
         decimal result = Form1.sumValue(inventory);
 

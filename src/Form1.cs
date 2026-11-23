@@ -133,6 +133,7 @@ public partial class Form1 : Form
             ExportCsv(appFolder, InventoryTable);
             }
         }
+        selectedItem = null;
         removeItemWindow.Dispose();
     }
     public void UpdateInventoryList()

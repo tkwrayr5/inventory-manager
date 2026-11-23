@@ -17,7 +17,7 @@ public partial class Form1 : Form
     InventoryItem selectedItem = new InventoryItem();
     Label labelValue = new Label();
     Label labelQuantity = new Label();
-    Label labelNotes = new Label();
+    TextBox textboxNotes = new TextBox();
     public Form1()
     {
         Directory.CreateDirectory(appFolder);
@@ -34,12 +34,28 @@ public partial class Form1 : Form
         }
         InitializeComponent();
         TableLayoutPanel tableLayout = new TableLayoutPanel();
-        tableLayout.ColumnCount = 4;
-        tableLayout.RowCount = 3;
+        TableLayoutPanel detailsLayout = new TableLayoutPanel();
+        Label labelV = new Label();
+        labelV.Text = "Value";
+        Label labelQ = new Label();
+        labelQ.Text = "Quantity";
+
+        tableLayout.ColumnCount = 2;
+        tableLayout.RowCount = 4;
+        detailsLayout.ColumnCount = 2;
+        detailsLayout.RowCount = 2;
         tableLayout.Dock = DockStyle.Fill;
-        tableLayout.Controls.Add(labelValue,1,0);
-        tableLayout.Controls.Add(labelQuantity,2,0);
-        tableLayout.Controls.Add(labelNotes,3,0);
+        textboxNotes.ReadOnly = true;
+        textboxNotes.Multiline = true;
+        textboxNotes.Width = 360;
+        textboxNotes.Height = 400;
+        tableLayout.Controls.Add(detailsLayout,1,1);
+        detailsLayout.Controls.Add(labelV,0,0);
+        detailsLayout.Controls.Add(labelQ,1,0);
+        detailsLayout.Controls.Add(labelQuantity,1,1);
+        detailsLayout.Controls.Add(labelValue,0,1);
+        detailsLayout.Controls.Add(labelQuantity,1,1);
+        tableLayout.Controls.Add(textboxNotes,1,0);
         
         inventoryList.NodeMouseClick += treeClick;
         inventoryList.Size = new Size(360, 400);
@@ -54,6 +70,7 @@ public partial class Form1 : Form
         removeItemButton.Text = "Remove Item";
         removeItemButton.Click += removeClick;
         tableLayout.Controls.Add(removeItemButton, 1, 2);
+        
 
         this.Controls.Add(tableLayout);
 
@@ -85,7 +102,7 @@ public partial class Form1 : Form
        selectedItem = (InventoryItem)e.Node.Tag;
        labelValue.Text = selectedItem.price.ToString();
        labelQuantity.Text = selectedItem.quantity.ToString();
-       labelNotes.Text = selectedItem.notes;
+       textboxNotes.Text = selectedItem.notes;
     }
     private void addClick(object sender, EventArgs e)
     {

@@ -46,11 +46,27 @@ public partial class ItemDetailsForm : Form
         
         OK.DialogResult = DialogResult.OK;
         OK.Text = "OK";
-        tableLayout.Controls.Add(OK,3,0);
+        tableLayout.Controls.Add(OK,0,3);
        
         Cancel.DialogResult = DialogResult.Cancel;
         Cancel.Text = "Cancel";
-        tableLayout.Controls.Add(Cancel,3,1);
+        tableLayout.Controls.Add(Cancel,1,3);
+
+        Label enterValueLabel = new Label();
+        enterValueLabel.Text = "New Value";
+        Label enterQuantityLabel = new Label();
+        enterQuantityLabel.Text = "New Ammount";
+        Label enterNotesLabel = new Label();
+        enterNotesLabel.Text = "Notes";
+        enterNotes.Height = 300;
+
+        tableLayout.Controls.Add(enterValue,0,0);
+        tableLayout.Controls.Add(enterQuantity,0,1);
+        tableLayout.Controls.Add(enterNotes,0,2);
+        tableLayout.Controls.Add(enterValueLabel,1,0);
+        tableLayout.Controls.Add(enterQuantityLabel,1,1);
+        tableLayout.Controls.Add(enterNotesLabel,1,2);
+
         this.Controls.Add(tableLayout);
     }
 }

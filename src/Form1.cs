@@ -61,8 +61,9 @@ public partial class Form1 : Form
         inventoryList.Size = new Size(360, 400);
         UpdateInventoryList();
         tableLayout.Controls.Add(inventoryList, 0, 0);
+
         Button addItemButton = new Button();
-        addItemButton.Text = "Add";
+        addItemButton.Text = "Add Item";
         addItemButton.Click += addClick;
         tableLayout.Controls.Add(addItemButton, 0, 2);
 
@@ -70,6 +71,11 @@ public partial class Form1 : Form
         removeItemButton.Text = "Remove Item";
         removeItemButton.Click += removeClick;
         tableLayout.Controls.Add(removeItemButton, 1, 2);
+
+        Button editItemButton = new Button();
+        editItemButton.Text = "Edit Item";
+        editItemButton.Click += editClick;
+        tableLayout.Controls.Add(editItemButton, 0, 3);
         
 
         this.Controls.Add(tableLayout);
@@ -152,6 +158,19 @@ public partial class Form1 : Form
         }
         selectedItem = null;
         removeItemWindow.Dispose();
+    }
+    private void editClick(object sender, EventArgs e)
+    {
+        ItemDetailsForm editItemWindow = new ItemDetailsForm();
+        if (editItemWindow.ShowDialog() == DialogResult.OK)
+        {
+            if(selectedItem != null)
+            {
+                selectedItem.quantity = editItemWindow.ItemQuantity;
+                selectedItem.price = (decimal)editItemWindow.ItemValue;
+                selectedItem.notes = editItemWindow.ItemNotes;
+            }
+        }
     }
     public void UpdateInventoryList()
     {

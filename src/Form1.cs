@@ -15,6 +15,9 @@ public partial class Form1 : Form
     string appFolder = Path.Combine(appData, "InventoryManager");
     TreeView inventoryList = new TreeView();
     InventoryItem selectedItem = new InventoryItem();
+    Label labelValue = new Label();
+    Label labelQuantity = new Label();
+    TextBox textboxNotes = new TextBox();
     public Form1()
     {
         Directory.CreateDirectory(appFolder);
@@ -31,16 +34,36 @@ public partial class Form1 : Form
         }
         InitializeComponent();
         TableLayoutPanel tableLayout = new TableLayoutPanel();
-        tableLayout.ColumnCount = 2;
-        tableLayout.RowCount = 3;
-        tableLayout.Dock = DockStyle.Fill;
+        TableLayoutPanel detailsLayout = new TableLayoutPanel();
+        Label labelV = new Label();
+        labelV.Text = "Value";
+        Label labelQ = new Label();
+        labelQ.Text = "Quantity";
 
+        tableLayout.ColumnCount = 2;
+        tableLayout.RowCount = 4;
+        detailsLayout.ColumnCount = 2;
+        detailsLayout.RowCount = 2;
+        tableLayout.Dock = DockStyle.Fill;
+        textboxNotes.ReadOnly = true;
+        textboxNotes.Multiline = true;
+        textboxNotes.Width = 360;
+        textboxNotes.Height = 400;
+        tableLayout.Controls.Add(detailsLayout,1,1);
+        detailsLayout.Controls.Add(labelV,0,0);
+        detailsLayout.Controls.Add(labelQ,1,0);
+        detailsLayout.Controls.Add(labelQuantity,1,1);
+        detailsLayout.Controls.Add(labelValue,0,1);
+        detailsLayout.Controls.Add(labelQuantity,1,1);
+        tableLayout.Controls.Add(textboxNotes,1,0);
         
         inventoryList.NodeMouseClick += treeClick;
+        inventoryList.Size = new Size(360, 400);
         UpdateInventoryList();
         tableLayout.Controls.Add(inventoryList, 0, 0);
+
         Button addItemButton = new Button();
-        addItemButton.Text = "Add";
+        addItemButton.Text = "Add Item";
         addItemButton.Click += addClick;
         tableLayout.Controls.Add(addItemButton, 0, 2);
 
@@ -48,6 +71,12 @@ public partial class Form1 : Form
         removeItemButton.Text = "Remove Item";
         removeItemButton.Click += removeClick;
         tableLayout.Controls.Add(removeItemButton, 1, 2);
+
+        Button editItemButton = new Button();
+        editItemButton.Text = "Edit Item";
+        editItemButton.Click += editClick;
+        tableLayout.Controls.Add(editItemButton, 0, 3);
+        
 
         this.Controls.Add(tableLayout);
 
@@ -59,7 +88,7 @@ public partial class Form1 : Form
 
         using (var writer = CsvWriter.ToFile(Path.Combine(path, "inventory.csv")))
         {
-            writer.WriteHeader("ID", "Name", "Ammount", "Location");
+            writer.WriteHeader<InventoryItem>();
             foreach (var item in itemTable)
             {
                 writer.WriteRecord(item);
@@ -77,6 +106,9 @@ public partial class Form1 : Form
     private void treeClick(object sender, TreeNodeMouseClickEventArgs e)
     {
        selectedItem = (InventoryItem)e.Node.Tag;
+       labelValue.Text = selectedItem.price.ToString();
+       labelQuantity.Text = selectedItem.quantity.ToString();
+       textboxNotes.Text = selectedItem.notes;
     }
     private void addClick(object sender, EventArgs e)
     {
@@ -94,6 +126,8 @@ public partial class Form1 : Form
             }
             newItem.name = addItemWindow.ItemName; 
             newItem.quantity = 1;
+            newItem.price = 0.00m;
+            newItem.notes = "Notes go here"; 
             if (selectedItem != null)
             {
                newItem.locationId = selectedItem.Id; 
@@ -122,14 +156,34 @@ public partial class Form1 : Form
             ExportCsv(appFolder, InventoryTable);
             }
         }
+        selectedItem = null;
         removeItemWindow.Dispose();
+    }
+    private void editClick(object sender, EventArgs e)
+    {
+        ItemDetailsForm editItemWindow = new ItemDetailsForm();
+        if (editItemWindow.ShowDialog() == DialogResult.OK)
+        {
+            if(selectedItem != null)
+            {
+                selectedItem.quantity = editItemWindow.ItemQuantity;
+                selectedItem.price = (decimal)editItemWindow.ItemValue;
+                selectedItem.notes = editItemWindow.ItemNotes;
+            }
+        }
     }
     public void UpdateInventoryList()
     {
         inventoryList.BeginUpdate();
         inventoryList.Nodes.Clear();
         lookUpTable.Clear();
-        inventoryList.Nodes.Add("Earth");
+        //inventoryList.Nodes.Add("Earth");
+        PopulateInventoryList();
+        OrderInventoryList();
+        inventoryList.EndUpdate();
+    }
+    public void PopulateInventoryList()
+    {
         foreach (var item in InventoryTable)
         {
             try
@@ -146,21 +200,21 @@ public partial class Form1 : Form
                 Console.WriteLine("Failed to add node");
             }
         }
-        foreach (var item in InventoryTable)
+               
+    }
+    public void OrderInventoryList()
+    {
+                foreach (var item in InventoryTable)
         {
             try
             {
-                if (item.locationId > 0)
+                if (item.locationId >= 0)
                 {
                     InventoryItem parentItem = this.lookUpTable.GetValueOrDefault(item.locationId);
                     TreeNode parentNode = parentItem.node;
                     parentNode.Nodes.Insert(parentNode.Nodes.Count, (TreeNode)item.node.Clone());
                     item.node.Remove();
                     item.node = parentNode.Nodes[parentNode.Nodes.Count - 1];
-
-                    // Console.WriteLine(item.node.ToString());
-                    // this.lookUpTable.Add(item.locationId,item);
-
                 }
             }
             catch
@@ -168,7 +222,6 @@ public partial class Form1 : Form
                 Console.WriteLine("Not a child node, or missing parent");
             }
         }
-        inventoryList.EndUpdate();
     }
 }
 
@@ -178,9 +231,13 @@ public partial class InventoryItem
     [CsvColumn("ID")]
     public int Id { get; set; }
     [CsvColumn("Name")]
-    public String name { get; set; } = "";
+    public string name { get; set; } = "";
     [CsvColumn("Ammount")]
     public int quantity { get; set; }
+    [CsvColumn("Value")]
+    public decimal price { get; set; }
+    [CsvColumn("Notes")]
+    public string notes { get; set; } = "";
     [CsvColumn("Location")]
     public int locationId { get; set; }
     [CsvIgnore]

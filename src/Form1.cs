@@ -76,6 +76,11 @@ public partial class Form1 : Form
         editItemButton.Text = "Edit Item";
         editItemButton.Click += editClick;
         tableLayout.Controls.Add(editItemButton, 0, 3);
+
+        Button valueButton = new Button();
+        valueButton.Text = "Total Value";
+        valueButton.Click += valueClick;
+        tableLayout.Controls.Add(valueButton, 1, 3);
         
 
         this.Controls.Add(tableLayout);
@@ -169,9 +174,34 @@ public partial class Form1 : Form
                 selectedItem.quantity = editItemWindow.ItemQuantity;
                 selectedItem.price = (decimal)editItemWindow.ItemValue;
                 selectedItem.notes = editItemWindow.ItemNotes;
+                UpdateInventoryList();
+                ExportCsv(appFolder, InventoryTable);
             }
+            editItemWindow.Dispose();
         }
     }
+    private void valueClick(object sender, EventArgs e)
+    {
+        decimal sum = sumValue(InventoryTable);
+        ValueForm valueWindow = new ValueForm(sum);
+        
+        if (valueWindow.ShowDialog() == DialogResult.OK)
+        {
+            
+        }
+        valueWindow.Dispose();
+    }
+
+    public static decimal sumValue(List<InventoryItem> inventorylist)
+    {
+        decimal sum = 0;
+        foreach (var item in inventorylist)
+        {
+            sum = sum + item.price;
+        }
+        return sum;
+    }
+
     public void UpdateInventoryList()
     {
         inventoryList.BeginUpdate();
